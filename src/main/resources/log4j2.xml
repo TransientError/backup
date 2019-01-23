@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" status="WARN" strict="false">
+    <Appenders>
+        <RollingRandomAccessFile name="RollingRandomAccessFile"
+                                 fileName="logs/application.log"
+                                 filePattern="logs/application.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout>
+                <Pattern>%d{dd MMM yyy HH:mm:ss} [%p] (%t) %c: %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="RollingRandomAccessFile" />
+        </Root>
+    </Loggers>
+</Configuration>
