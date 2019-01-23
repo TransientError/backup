@@ -1,5 +1,6 @@
 package backupKotlin.StorageServices
 
+import arrow.effects.IO
 import backupKotlin.*
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
@@ -19,40 +20,40 @@ const val GITHUB_CONTENT_KEY = "content"
 internal open class GithubGistStorageService(
         private val fileReader: FileReader,
         private val retryableHttpClient: RetryableHttpClient) : StorageService {
-    lateinit var archivePath: Path
-    lateinit var updater: Updater
 
-    override fun upload(updater: Updater, archivePath: Path) {
-        this.archivePath = archivePath
-        this.updater = updater
+    override fun upload(updater: Updater, archivePath: Path): IO<Unit> {
         sweepInput(updater)
-        retryableHttpClient.submitWithRetries { submitEditGistRequest() }
+        return IO {
+            retryableHttpClient.submitWithRetries { submitEditGistRequest(updater, archivePath) }
+        }.map { Unit }
     }
 
     private fun sweepInput(updater: Updater) =
             require(!(updater.credentials.isNullOrBlank() || updater.destination.isNullOrBlank()))
             {"Github gists require an OAuth token and a gist id"}
 
-    private fun submitEditGistRequest(): Triple<Request, Response, Result<ByteArray, FuelError>> =
+    private fun submitEditGistRequest(updater: Updater, archivePath: Path)
+            : Triple<Request, Response, Result<ByteArray, FuelError>> =
             Fuel.patch("https://api.github.com/gists/${updater.destination}")
                 .header(HttpHeaders.AUTHORIZATION to "token ${updater.credentials}")
-                .jsonBody(generateEditGistsBody())
+                .jsonBody(generateEditGistsBody(archivePath))
                 .response()
 
     @VisibleForTesting
-    internal fun generateEditGistsBody(): String =
-            JSONObject(mapOf(
-                GITHUB_DESCRIPTION_KEY to getDescriptionForPath(),
+    internal fun generateEditGistsBody(archivePath: Path): String {
+        return JSONObject(mapOf(
+                GITHUB_DESCRIPTION_KEY to getDescriptionForPath(archivePath),
                 GITHUB_FILES_KEY to JSONObject(mapOf(
                         archivePath.fileName to JSONObject(mapOf(
                                 GITHUB_CONTENT_KEY to fileReader.readFiles(archivePath)
                         ))
                 ))
-            )).toString()
+        )).toString()
+    }
 
-    private fun getDescriptionForPath(): String = "backup for ${getNameForArchive()}"
+    private fun getDescriptionForPath(archivePath: Path): String = "backup for ${getNameForArchive(archivePath)}"
 
-    private fun getNameForArchive() : String =
+    private fun getNameForArchive(archivePath: Path) : String =
             Files.getNameWithoutExtension(archivePath.toString()).split("-").first()
 
 }

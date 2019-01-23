@@ -17,7 +17,7 @@ class RetryableHttpClient(private val maxRetries: Int) {
         var tries = 0
         val (request, response, result) = fuelRequest.invoke()
 
-        while (!Range.openClosed(200, 299).contains(response.statusCode) && tries < maxRetries) {
+        while (!Range.closedOpen(200, 300).contains(response.statusCode) && tries < maxRetries) {
             logger.warn("http call failed with status code: ${response.statusCode}" +
                     " message: ${response.responseMessage}")
             ++tries

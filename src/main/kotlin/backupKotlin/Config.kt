@@ -15,7 +15,7 @@ val kodein = Kodein {
     bind<AppConfig>() with singleton {
         kodein.newInstance { ConfigReader(instance(), instance("configurationPath")).readConfig() }
     }
-    bind<ArchiveGenerator>() with singleton { ArchiveGenerator() }
+    bind<ArchiveGenerator>() with singleton { ArchiveGenerator(instance()) }
     bind<StorageServiceSelector>() with singleton { kodein.newInstance { StorageServiceSelector(instance()) } }
     bind<BackupPerformer>() with singleton { kodein.newInstance { BackupPerformer(instance(), instance()) } }
     bind<FileReader>() with singleton { kodein.newInstance { FileReader(instance("charset")) } }

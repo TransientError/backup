@@ -33,6 +33,10 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:2.11.1")
     implementation(group = "org.apache.logging.log4j", name = "log4j-core", version = "2.11.1")
     implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = "2.11.1")
+    implementation("io.arrow-kt:arrow-core:0.8.2")
+    implementation("io.arrow-kt:arrow-data:0.8.2")
+    implementation("io.arrow-kt:arrow-effects:0.8.2")
+
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
