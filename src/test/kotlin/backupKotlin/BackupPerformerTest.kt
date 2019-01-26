@@ -1,9 +1,8 @@
 package backupKotlin
 
+import arrow.effects.IO
 import backupKotlin.StorageServices.StorageService
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.mockito.Mockito
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -28,7 +27,9 @@ class BackupPerformerTest {
     private val packagePath = Paths.get(".", "archives", "$packageName-package.txt")
     private val appConfig = AppConfig(listOf(PackageManager(packageName)))
     private val storageServiceSelector = Mockito.mock(StorageServiceSelector::class.java)!!
-    private val storageService = Mockito.mock(StorageService::class.java)!!
+    private val storageService = mock<StorageService> {
+        on {upload(Updater("name"), packagePath)} doReturn IO.unit
+    }
     private val map = mapOf(Updater("name") to storageService)
 
     @Test

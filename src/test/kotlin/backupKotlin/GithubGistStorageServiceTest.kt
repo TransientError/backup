@@ -38,7 +38,7 @@ class GithubGistStorageServiceTest {
         val githubGistStorageService = GithubGistStorageService(fileReader, retryableHttpClient)
         githubGistStorageService.upload(updater, path)
 
-        val json = JSONObject(githubGistStorageService.generateEditGistsBody())
+        val json = JSONObject(githubGistStorageService.generateEditGistsBody(path))
         assertThat(json.getJSONObject(GITHUB_FILES_KEY).toString()).isEqualTo(contentString)
     }
 }
