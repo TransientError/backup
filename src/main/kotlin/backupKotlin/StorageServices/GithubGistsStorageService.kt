@@ -42,7 +42,7 @@ internal open class GithubGistStorageService(
     @VisibleForTesting
     internal fun generateEditGistsBody(archivePath: Path): String {
         return JSONObject(mapOf(
-                GITHUB_DESCRIPTION_KEY to getDescriptionForPath(archivePath),
+                GITHUB_DESCRIPTION_KEY to "backup for TransientError's dotfiles/packages",
                 GITHUB_FILES_KEY to JSONObject(mapOf(
                         archivePath.fileName to JSONObject(mapOf(
                                 GITHUB_CONTENT_KEY to fileReader.readFiles(archivePath)
@@ -50,10 +50,5 @@ internal open class GithubGistStorageService(
                 ))
         )).toString()
     }
-
-    private fun getDescriptionForPath(archivePath: Path): String = "backup for ${getNameForArchive(archivePath)}"
-
-    private fun getNameForArchive(archivePath: Path) : String =
-            Files.getNameWithoutExtension(archivePath.toString()).split("-").first()
 
 }
