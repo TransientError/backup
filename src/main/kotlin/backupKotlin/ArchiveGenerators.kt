@@ -30,7 +30,7 @@ internal fun sweepInput(packageManager: PackageManager) {
 private fun getOutputStreamForFile(file: Path) : OutputStream = FileOutputStream(file.toFile(), false)
 
 fun getArchivePath(packageManager: PackageManager): Path =
-        Paths.get(".", "archives", "${packageManager.name}-package.txt")
+        Paths.get(".", "archives", "${packageManager.name}-backup.txt")
 
 class ArchiveGenerator(private val fileReader: FileReader) {
     fun generate(packageManager: PackageManager): IO<Unit> {

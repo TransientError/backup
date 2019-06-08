@@ -18,6 +18,6 @@ class ArchiveGeneratorTest {
 
     @Test
     fun archivePathShouldWork() {
-        assertThat(getArchivePath(PackageManager("name")).toString()).isEqualTo("./archives/name-package.txt")
+        assertThat(getArchivePath(PackageManager("name")).toString()).isEqualTo("./archives/name-backup.txt")
     }
 }

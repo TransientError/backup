@@ -24,7 +24,7 @@ class MockBackupPerformer(appConfig: AppConfig, serviceSelector: StorageServiceS
 class BackupPerformerTest {
 
     private val packageName = "packageName"
-    private val packagePath = Paths.get(".", "archives", "$packageName-package.txt")
+    private val packagePath = Paths.get(".", "archives", "$packageName-backup.txt")
     private val appConfig = AppConfig(listOf(PackageManager(packageName)))
     private val storageServiceSelector = Mockito.mock(StorageServiceSelector::class.java)!!
     private val storageService = mock<StorageService> {
