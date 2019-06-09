@@ -1,7 +1,6 @@
 package backupKotlin
 
 import arrow.core.Try
-import arrow.effects.IO
 import backupKotlin.StorageServices.FileReader
 import com.google.common.io.ByteStreams
 import mu.KotlinLogging
@@ -33,18 +32,20 @@ fun getArchivePath(packageManager: PackageManager): Path =
         Paths.get(".", "archives", "${packageManager.name}-backup.txt")
 
 class ArchiveGenerator(private val fileReader: FileReader) {
-    fun generate(packageManager: PackageManager): IO<Unit> {
+    fun generate(packageManager: PackageManager) {
         sweepInput(packageManager)
-        return IO {
-            val process = Runtime.getRuntime().exec(packageManager.listGenerator)
+
+        val process = ProcessBuilder(packageManager.listGenerator?.split(' ')).start()
+        try {
             if (getArchivePath(packageManager).toFile().exists()) {
                 updateIfDifferent(process, packageManager)
             } else {
                 val outputStream = getOutputStreamForFile(getArchivePath(packageManager))
-                ByteStreams.copy(process.inputStream, outputStream)
-                outputStream.close()
+                outputStream.use { ByteStreams.copy(process.inputStream, outputStream) }
             }
-            closeProcessStreams(process)
+        } finally {
+            logIfNotEmpty(log::error, process.errorStream.readAllBytes())
+            closeProcessAndStreams(process)
         }
     }
 

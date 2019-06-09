@@ -1,6 +1,5 @@
 package backupKotlin.StorageServices
 
-import arrow.effects.IO
 import backupKotlin.*
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
@@ -8,7 +7,6 @@ import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.result.Result
 import com.google.common.annotations.VisibleForTesting
-import com.google.common.io.Files
 import com.google.common.net.HttpHeaders
 import org.json.JSONObject
 import java.nio.file.Path
@@ -21,11 +19,9 @@ internal open class GithubGistStorageService(
         private val fileReader: FileReader,
         private val retryableHttpClient: RetryableHttpClient) : StorageService {
 
-    override fun upload(updater: Updater, archivePath: Path): IO<Unit> {
+    override fun upload(updater: Updater, archivePath: Path) {
         sweepInput(updater)
-        return IO {
-            retryableHttpClient.submitWithRetries { submitEditGistRequest(updater, archivePath) }
-        }.map { Unit }
+        retryableHttpClient.submitWithRetries { submitEditGistRequest(updater, archivePath) }
     }
 
     private fun sweepInput(updater: Updater) =

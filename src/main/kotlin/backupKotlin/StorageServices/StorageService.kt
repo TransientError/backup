@@ -1,16 +1,15 @@
 package backupKotlin.StorageServices
 
 import arrow.core.Try
-import arrow.effects.IO
 import backupKotlin.Updater
-import backupKotlin.closeProcessStreams
+import backupKotlin.closeProcessAndStreams
 import backupKotlin.logIfNotEmpty
 import mu.KotlinLogging
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
 interface StorageService {
-    fun upload(updater: Updater, archivePath: Path): IO<Unit>
+    fun upload(updater: Updater, archivePath: Path)
 }
 
 val log = KotlinLogging.logger {  }
@@ -22,16 +21,18 @@ class CustomStorageService : StorageService {
         }.fold({log.error(it) {  }; throw it}, {Unit})
     }
 
-    override fun upload(updater: Updater, archivePath: Path): IO<Unit> {
+    override fun upload(updater: Updater, archivePath: Path) {
         sweepInput(updater)
-
-        return IO<Process> {
-            val command = "cat $archivePath | ${updater.uploadCommand}"
-            log.info { "Executing: $command" }
-            val process = Runtime.getRuntime().exec(arrayOf("/bin/sh", "-c", command))
+        log.info { "Executing: ${updater.uploadCommand}" }
+        val process = ProcessBuilder("/bin/sh", "-c", updater.uploadCommand)
+                .redirectInput(archivePath.toFile())
+                .redirectErrorStream(true)
+                .start()
+        try {
             process.waitFor(100, TimeUnit.MILLISECONDS)
+        } finally {
             logIfNotEmpty(log::error, process.errorStream.readAllBytes())
-            process
-        }.map(::closeProcessStreams)
+            closeProcessAndStreams(process)
+        }
     }
 }

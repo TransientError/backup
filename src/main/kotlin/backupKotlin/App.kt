@@ -1,9 +1,10 @@
 package backupKotlin
 
-import arrow.effects.IO
-import arrow.effects.IO.Companion.unit
 import com.github.salomonbrys.kodein.*
+import com.google.common.base.Throwables
 import mu.KotlinLogging
+import java.lang.Exception
+import kotlin.concurrent.thread
 
 private val appConfig: AppConfig = kodein.instance()
 private val generator: ArchiveGenerator = kodein.instance()
@@ -12,15 +13,14 @@ private val log = KotlinLogging.logger {  }
 
 fun main() {
     generateArchives()
-            .flatMap { backupPerformer.backup() }
-            .unsafeRunAsync { it.fold(
-                    {exception -> throw exception},
-                    {Unit}
-            ) }
+    backupPerformer.backup()
 }
 
-private fun generateArchives(): IO<Unit> {
-    return appConfig.packageManagers
-            .map(generator::generate)
-            .fold(unit, runAsynchronously(log))
+private fun generateArchives() {
+    try {
+        return appConfig.packageManagers
+                .forEach { packageManager -> generator.generate(packageManager)  }
+    } catch (e: Exception) {
+        log.warn(e) { Throwables.getStackTraceAsString(e) }
+    }
 }
