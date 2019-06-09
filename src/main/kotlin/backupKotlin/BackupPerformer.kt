@@ -16,7 +16,7 @@ open class BackupPerformer(private val appConfig: AppConfig, private val storage
                 .map(::getArchivePath)
                 .partition { hasBeenModifiedInLast(1, it) }
         toLog.forEach { logger.info {"$it has not changed so we're not uploading it"} }
-        return toUpload.forEach { path -> runIndependently({uploadToServices(path)}, logger)}
+        return toUpload.forEach{ path ->  runIndependently({ uploadToServices(path) },  logger) }
     }
 
     @VisibleForTesting
