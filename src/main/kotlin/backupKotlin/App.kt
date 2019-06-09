@@ -17,6 +17,10 @@ fun main() {
 }
 
 private fun generateArchives() {
-    return appConfig.packageManagers
-            .forEach { packageManager -> thread { generator.generate(packageManager) }  }
+    try {
+        return appConfig.packageManagers
+                .forEach { packageManager -> thread { generator.generate(packageManager) } }
+    } catch (e: Exception) {
+        log.error { Throwables.getStackTraceAsString(e) }
+    }
 }

@@ -26,15 +26,14 @@ class BackupPerformerTest {
     private val packageName = "packageName"
     private val packagePath = Paths.get(".", "archives", "$packageName-backup.txt")
     private val appConfig = AppConfig(listOf(PackageManager(packageName)))
-    private val storageServiceSelector = Mockito.mock(StorageServiceSelector::class.java)!!
-    private val storageService = mock<StorageService> {
-        on {upload(Updater("name"), packagePath)} doReturn IO.unit
-    }
+    private val storageService = mock<StorageService> { }
     private val map = mapOf(Updater("name") to storageService)
+    private val storageServiceSelector = mock<StorageServiceSelector> {
+        on {select()} doReturn map
+    }
 
     @Test
     fun shouldUploadIfFileHasBeenModified() {
-        whenever(storageServiceSelector.select()).thenReturn(map)
         val backupPerformer = MockBackupPerformer(appConfig, storageServiceSelector)
 
         backupPerformer.backup()
@@ -44,7 +43,6 @@ class BackupPerformerTest {
 
     @Test
     fun shouldNotUploadIfFileHasNotBeenModified() {
-        whenever(storageServiceSelector.select()).thenReturn(map)
         val backupPerformer = MockBackupPerformer(appConfig, storageServiceSelector)
         backupPerformer.setStubbedResponse(false)
 
